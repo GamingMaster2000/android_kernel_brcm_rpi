@@ -414,7 +414,7 @@ static void vc4_hvs_irq_enable_eof(const struct vc4_hvs *hvs,
 				   unsigned int channel)
 {
 	struct vc4_dev *vc4 = hvs->vc4;
-	u32 irq_mask = vc4->is_vc5 ?
+	u32 irq_mask = vc4->gen == VC4_GEN_5 ?
 		SCALER5_DISPCTRL_DSPEIEOF(channel) :
 		SCALER_DISPCTRL_DSPEIEOF(channel);
 
@@ -426,7 +426,7 @@ static void vc4_hvs_irq_clear_eof(const struct vc4_hvs *hvs,
 				  unsigned int channel)
 {
 	struct vc4_dev *vc4 = hvs->vc4;
-	u32 irq_mask = vc4->is_vc5 ?
+	u32 irq_mask = vc4->gen == VC4_GEN_5 ?
 		SCALER5_DISPCTRL_DSPEIEOF(channel) :
 		SCALER_DISPCTRL_DSPEIEOF(channel);
 
@@ -590,7 +590,7 @@ int vc4_hvs_get_fifo_from_output(struct vc4_hvs *hvs, unsigned int output)
 	u32 reg;
 	int ret;
 
-	if (!vc4->is_vc5)
+	if (vc4->gen == VC4_GEN_4)
 		return output;
 
 	/*
@@ -671,7 +671,7 @@ static int vc4_hvs_init_channel(struct vc4_hvs *hvs, struct drm_crtc *crtc,
 	dispctrl = SCALER_DISPCTRLX_ENABLE;
 	dispbkgndx = HVS_READ(SCALER_DISPBKGNDX(chan));
 
-	if (!vc4->is_vc5) {
+	if (vc4->gen == VC4_GEN_4) {
 		dispctrl |= VC4_SET_FIELD(mode->hdisplay,
 					  SCALER_DISPCTRLX_WIDTH) |
 			    VC4_SET_FIELD(mode->vdisplay,
@@ -702,7 +702,7 @@ static int vc4_hvs_init_channel(struct vc4_hvs *hvs, struct drm_crtc *crtc,
 	/* Reload the LUT, since the SRAMs would have been disabled if
 	 * all CRTCs had SCALER_DISPBKGND_GAMMA unset at once.
 	 */
-	if (!vc4->is_vc5)
+	if (vc4->gen == VC4_GEN_4)
 		vc4_hvs_lut_load(hvs, vc4_crtc);
 	else
 		vc5_hvs_lut_load(hvs, vc4_crtc);
@@ -752,7 +752,7 @@ static int vc4_hvs_gamma_check(struct drm_crtc *crtc,
 	struct drm_device *dev = crtc->dev;
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
 
-	if (!vc4->is_vc5)
+	if (vc4->gen == VC4_GEN_4)
 		return 0;
 
 	if (!crtc_state->color_mgmt_changed)
@@ -997,7 +997,7 @@ void vc4_hvs_atomic_flush(struct drm_crtc *crtc,
 		u32 dispbkgndx = HVS_READ(SCALER_DISPBKGNDX(channel));
 
 		if (crtc->state->gamma_lut) {
-			if (!vc4->is_vc5) {
+			if (vc4->gen == VC4_GEN_4) {
 				vc4_hvs_update_gamma_lut(hvs, vc4_crtc);
 				dispbkgndx |= SCALER_DISPBKGND_GAMMA;
 			} else {
@@ -1014,7 +1014,7 @@ void vc4_hvs_atomic_flush(struct drm_crtc *crtc,
 			 * should already be disabling/enabling the pipeline
 			 * when gamma changes.
 			 */
-			if (!vc4->is_vc5)
+			if (vc4->gen == VC4_GEN_4)
 				dispbkgndx &= ~SCALER_DISPBKGND_GAMMA;
 		}
 		HVS_WRITE(SCALER_DISPBKGNDX(channel), dispbkgndx);
@@ -1030,7 +1030,8 @@ void vc4_hvs_atomic_flush(struct drm_crtc *crtc,
 
 void vc4_hvs_mask_underrun(struct vc4_hvs *hvs, int channel)
 {
-	struct drm_device *drm = &hvs->vc4->base;
+	struct vc4_dev *vc4 = hvs->vc4;
+	struct drm_device *drm = &vc4->base;
 	u32 dispctrl;
 	int idx;
 
@@ -1038,8 +1039,9 @@ void vc4_hvs_mask_underrun(struct vc4_hvs *hvs, int channel)
 		return;
 
 	dispctrl = HVS_READ(SCALER_DISPCTRL);
-	dispctrl &= ~(hvs->vc4->is_vc5 ? SCALER5_DISPCTRL_DSPEISLUR(channel) :
-					 SCALER_DISPCTRL_DSPEISLUR(channel));
+	dispctrl &= ~((vc4->gen == VC4_GEN_5) ?
+		      SCALER5_DISPCTRL_DSPEISLUR(channel) :
+		      SCALER_DISPCTRL_DSPEISLUR(channel));
 
 	HVS_WRITE(SCALER_DISPCTRL, dispctrl);
 
@@ -1048,7 +1050,8 @@ void vc4_hvs_mask_underrun(struct vc4_hvs *hvs, int channel)
 
 void vc4_hvs_unmask_underrun(struct vc4_hvs *hvs, int channel)
 {
-	struct drm_device *drm = &hvs->vc4->base;
+	struct vc4_dev *vc4 = hvs->vc4;
+	struct drm_device *drm = &vc4->base;
 	u32 dispctrl;
 	int idx;
 
@@ -1056,8 +1059,9 @@ void vc4_hvs_unmask_underrun(struct vc4_hvs *hvs, int channel)
 		return;
 
 	dispctrl = HVS_READ(SCALER_DISPCTRL);
-	dispctrl |= (hvs->vc4->is_vc5 ? SCALER5_DISPCTRL_DSPEISLUR(channel) :
-					SCALER_DISPCTRL_DSPEISLUR(channel));
+	dispctrl |= ((vc4->gen == VC4_GEN_5) ?
+		     SCALER5_DISPCTRL_DSPEISLUR(channel) :
+		     SCALER_DISPCTRL_DSPEISLUR(channel));
 
 	HVS_WRITE(SCALER_DISPSTAT,
 		  SCALER_DISPSTAT_EUFLOW(channel));
@@ -1100,8 +1104,10 @@ static irqreturn_t vc4_hvs_irq_handler(int irq, void *data)
 	control = HVS_READ(SCALER_DISPCTRL);
 
 	for (channel = 0; channel < SCALER_CHANNELS_COUNT; channel++) {
-		dspeislur = vc4->is_vc5 ? SCALER5_DISPCTRL_DSPEISLUR(channel) :
-					  SCALER_DISPCTRL_DSPEISLUR(channel);
+		dspeislur = (vc4->gen == VC4_GEN_5) ?
+			SCALER5_DISPCTRL_DSPEISLUR(channel) :
+			SCALER_DISPCTRL_DSPEISLUR(channel);
+
 		/* Interrupt masking is not always honored, so check it here. */
 		if (status & SCALER_DISPSTAT_EUFLOW(channel) &&
 		    control & dspeislur) {
@@ -1138,7 +1144,11 @@ int vc4_hvs_debugfs_init(struct drm_minor *minor)
 	if (!vc4->hvs)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (!vc4->is_vc5)
+=======
+	if (vc4->gen == VC4_GEN_4) {
+>>>>>>> drm/vc4: Introduce generation number enum
 		debugfs_create_bool("hvs_load_tracker", S_IRUGO | S_IWUSR,
 				    minor->debugfs_root,
 				    &vc4->load_tracker_enabled);
@@ -1165,6 +1175,52 @@ int vc4_hvs_debugfs_init(struct drm_minor *minor)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+struct vc4_hvs *__vc4_hvs_alloc(struct vc4_dev *vc4, struct platform_device *pdev)
+{
+	struct drm_device *drm = &vc4->base;
+	struct vc4_hvs *hvs;
+
+	hvs = drmm_kzalloc(drm, sizeof(*hvs), GFP_KERNEL);
+	if (!hvs)
+		return ERR_PTR(-ENOMEM);
+
+	hvs->vc4 = vc4;
+	hvs->pdev = pdev;
+
+	spin_lock_init(&hvs->mm_lock);
+
+	INIT_LIST_HEAD(&hvs->stale_dlist_entries);
+	INIT_WORK(&hvs->free_dlist_work, vc4_hvs_dlist_free_work);
+
+	/* Set up the HVS display list memory manager.  We never
+	 * overwrite the setup from the bootloader (just 128b out of
+	 * our 16K), since we don't want to scramble the screen when
+	 * transitioning from the firmware's boot setup to runtime.
+	 */
+	drm_mm_init(&hvs->dlist_mm,
+		    HVS_BOOTLOADER_DLIST_END,
+		    (SCALER_DLIST_SIZE >> 2) - HVS_BOOTLOADER_DLIST_END);
+
+	/* Set up the HVS LBM memory manager.  We could have some more
+	 * complicated data structure that allowed reuse of LBM areas
+	 * between planes when they don't overlap on the screen, but
+	 * for now we just allocate globally.
+	 */
+	if (vc4->gen == VC4_GEN_4)
+		/* 48k words of 2x12-bit pixels */
+		drm_mm_init(&hvs->lbm_mm, 0, 48 * 1024);
+	else
+		/* 60k words of 4x12-bit pixels */
+		drm_mm_init(&hvs->lbm_mm, 0, 60 * 1024);
+
+	vc4->hvs = hvs;
+
+	return hvs;
+}
+
+>>>>>>> drm/vc4: Introduce generation number enum
 static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
 {
 	struct platform_device *pdev = to_platform_device(dev);
@@ -1189,7 +1245,7 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
 	hvs->regset.regs = hvs_regs;
 	hvs->regset.nregs = ARRAY_SIZE(hvs_regs);
 
-	if (vc4->is_vc5) {
+	if (vc4->gen == VC4_GEN_5) {
 		struct rpi_firmware *firmware;
 		struct device_node *node;
 		unsigned int max_rate;
@@ -1227,7 +1283,7 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
 		}
 	}
 
-	if (!vc4->is_vc5)
+	if (vc4->gen == VC4_GEN_4)
 		hvs->dlist = hvs->regs + SCALER_DLIST_START;
 	else
 		hvs->dlist = hvs->regs + SCALER5_DLIST_START;
@@ -1295,7 +1351,7 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
 		    SCALER_DISPCTRL_DISPEIRQ(1) |
 		    SCALER_DISPCTRL_DISPEIRQ(2);
 
-	if (!vc4->is_vc5)
+	if (vc4->gen == VC4_GEN_4)
 		dispctrl &= ~(SCALER_DISPCTRL_DMAEIRQ |
 			      SCALER_DISPCTRL_SLVWREIRQ |
 			      SCALER_DISPCTRL_SLVRDEIRQ |
@@ -1339,7 +1395,7 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
 
 	/* Recompute Composite Output Buffer (COB) allocations for the displays
 	 */
-	if (!vc4->is_vc5) {
+	if (vc4->gen == VC4_GEN_4) {
 		/* The COB is 20736 pixels, or just over 10 lines at 2048 wide.
 		 * The bottom 2048 pixels are full 32bpp RGBA (intended for the
 		 * TXP composing RGBA to memory), whilst the remainder are only
