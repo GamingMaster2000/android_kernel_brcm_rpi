@@ -281,7 +281,13 @@ static void vc4_component_unbind_all(void *ptr)
 	component_unbind_all(vc4->dev, &vc4->base);
 }
 
+<<<<<<< HEAD
 const struct of_device_id vc4_dma_range_matches[] = {
+=======
+static const struct of_device_id vc4_dma_range_matches[] = {
+	{ .compatible = "brcm,bcm2711-hvs" },
+	{ .compatible = "brcm,bcm2712-hvs" },
+>>>>>>> drm/vc4: hvs: Support BCM2712 HVS
 	{ .compatible = "brcm,bcm2835-hvs" },
 	{ .compatible = "brcm,bcm2711-hvs" },
 	{ .compatible = "raspberrypi,rpi-firmware-kms" },
@@ -315,8 +321,6 @@ static int vc4_drm_bind(struct device *dev)
 	enum vc4_gen gen;
 	int ret = 0;
 
-	dev->coherent_dma_mask = DMA_BIT_MASK(32);
-
 	if (of_device_is_compatible(dev->of_node, "brcm,bcm2712-vc6"))
 		gen = VC4_GEN_6;
 	else if (of_device_is_compatible(dev->of_node, "brcm,bcm2711-vc5"))
@@ -328,6 +332,11 @@ static int vc4_drm_bind(struct device *dev)
 		driver = &vc5_drm_driver;
 	else
 		driver = &vc4_drm_driver;
+
+	if (gen >= VC4_GEN_6)
+		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(36));
+	else
+		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(32));
 
 	node = of_find_matching_node_and_match(NULL, vc4_dma_range_matches,
 					       NULL);
