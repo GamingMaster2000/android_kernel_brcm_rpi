@@ -13,7 +13,8 @@
 #include <drm/drm_debugfs.h>
 #include <drm/drm_device.h>
 #include <drm/drm_encoder.h>
-#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_dma_helper.h>
 #include <drm/drm_managed.h>
 #include <drm/drm_mm.h>
 #include <drm/drm_modeset_lock.h>
@@ -421,7 +422,7 @@ struct vc4_plane_state {
 	 */
 	u32 pos0_offset;
 	u32 pos2_offset;
-	u32 ptr0_offset;
+	u32 ptr0_offset[DRM_FORMAT_MAX_PLANES];
 	u32 lbm_offset;
 
 	/* Offset where the plane's dlist was last stored in the
