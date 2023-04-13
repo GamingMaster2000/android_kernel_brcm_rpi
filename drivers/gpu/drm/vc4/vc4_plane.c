@@ -735,6 +735,14 @@ static int vc4_plane_allocate_lbm(struct drm_plane_state *state)
 	if (!lbm_size)
 		return 0;
 
+	if (vc4->gen == VC4_GEN_5)
+		lbm_size = ALIGN(lbm_size, 64);
+	else if (vc4->gen == VC4_GEN_4)
+		lbm_size = ALIGN(lbm_size, 32);
+
+	drm_dbg_driver(drm, "[PLANE:%d:%s] LBM Allocation Size: %u\n",
+		       plane->base.id, plane->name, lbm_size);
+
 	if (WARN_ON(!vc4_state->lbm_offset))
 		return -EINVAL;
 
@@ -747,8 +755,7 @@ static int vc4_plane_allocate_lbm(struct drm_plane_state *state)
 		spin_lock_irqsave(&vc4->hvs->mm_lock, irqflags);
 		ret = drm_mm_insert_node_generic(&vc4->hvs->lbm_mm,
 						 &vc4_state->lbm,
-						 lbm_size,
-						 vc4->gen == VC4_GEN_5 ? 64 : 32,
+						 lbm_size, 1,
 						 0, 0);
 		spin_unlock_irqrestore(&vc4->hvs->mm_lock, irqflags);
 
@@ -1426,13 +1433,9 @@ void vc4_plane_async_set_fb(struct drm_plane *plane, struct drm_framebuffer *fb)
 	 * atomic updates that don't do a new modeset on our plane
 	 * also use our updated address.
 	 */
-<<<<<<< HEAD
-	vc4_state->dlist[vc4_state->ptr0_offset] = addr;
-=======
 	vc4_state->dlist[vc4_state->ptr0_offset[0]] = addr;
 
 	drm_dev_exit(idx);
->>>>>>> drm/vc4: plane: Change ptr0_offset to an array
 }
 
 static void vc4_plane_atomic_async_update(struct drm_plane *plane,
@@ -1501,15 +1504,10 @@ static void vc4_plane_atomic_async_update(struct drm_plane *plane,
 	       &vc4_state->hw_dlist[vc4_state->pos0_offset]);
 	writel(vc4_state->dlist[vc4_state->pos2_offset],
 	       &vc4_state->hw_dlist[vc4_state->pos2_offset]);
-<<<<<<< HEAD
-	writel(vc4_state->dlist[vc4_state->ptr0_offset],
-	       &vc4_state->hw_dlist[vc4_state->ptr0_offset]);
-=======
 	writel(vc4_state->dlist[vc4_state->ptr0_offset[0]],
 	       &vc4_state->hw_dlist[vc4_state->ptr0_offset[0]]);
 
 	drm_dev_exit(idx);
->>>>>>> drm/vc4: plane: Change ptr0_offset to an array
 }
 
 static int vc4_plane_atomic_async_check(struct drm_plane *plane,
