@@ -144,8 +144,19 @@
 /* Number of lines received and committed to memory. */
 #define TXP_PROGRESS		0x10
 
-#define TXP_READ(offset) readl(txp->regs + (offset))
-#define TXP_WRITE(offset, val) writel(val, txp->regs + (offset))
+#define TXP_DST_PTR_HIGH	0x1c
+
+#define TXP_READ(offset)								\
+	({										\
+		kunit_fail_current_test("Accessing a register in a unit test!\n");	\
+		readl(txp->regs + (offset));						\
+	})
+
+#define TXP_WRITE(offset, val)								\
+	do {										\
+		kunit_fail_current_test("Accessing a register in a unit test!\n");	\
+		writel(val, txp->regs + (offset));					\
+	} while (0)
 
 struct vc4_txp {
 	struct vc4_crtc	base;
@@ -285,6 +296,7 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
 	struct drm_framebuffer *fb;
 	unsigned int hdisplay;
 	unsigned int vdisplay;
+	dma_addr_t addr;
 	u32 ctrl;
 	int idx;
 	int i;
@@ -319,8 +331,13 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
 	if (!drm_dev_enter(drm, &idx))
 		return;
 
-	gem = drm_fb_cma_get_gem_obj(fb, 0);
-	TXP_WRITE(TXP_DST_PTR, gem->paddr + fb->offsets[0]);
+	gem = drm_fb_dma_get_gem_obj(fb, 0);
+	addr = gem->dma_addr + fb->offsets[0];
+	TXP_WRITE(TXP_DST_PTR, lower_32_bits(addr));
+
+	if (txp_data->supports_40bit_addresses)
+		TXP_WRITE(TXP_DST_PTR_HIGH, upper_32_bits(addr) & 0xff);
+
 	TXP_WRITE(TXP_DST_PITCH, fb->pitches[0]);
 
 	hdisplay = mode->hdisplay ?: 1;
@@ -488,12 +505,6 @@ static irqreturn_t vc4_txp_interrupt(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
-<<<<<<< HEAD
-static const struct vc4_crtc_data vc4_txp_crtc_data = {
-	.debugfs_name = "txp_regs",
-	.hvs_available_channels = BIT(2),
-	.hvs_output = 2,
-=======
 const struct vc4_txp_data vc4_txp_data = {
 	.base = {
 		.name = "txp",
@@ -501,19 +512,15 @@ const struct vc4_txp_data vc4_txp_data = {
 		.hvs_available_channels = BIT(2),
 		.hvs_output = 2,
 	},
->>>>>>> drm/vc4: txp: Introduce structure to deal with revision differences
 };
 
 static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 {
 	struct platform_device *pdev = to_platform_device(dev);
 	struct drm_device *drm = dev_get_drvdata(master);
-<<<<<<< HEAD
-=======
 	const struct vc4_txp_data *txp_data;
 	struct vc4_encoder *vc4_encoder;
 	struct drm_encoder *encoder;
->>>>>>> drm/vc4: txp: Introduce structure to deal with revision differences
 	struct vc4_crtc *vc4_crtc;
 	struct vc4_txp *txp;
 	struct drm_crtc *crtc;
@@ -548,17 +555,8 @@ static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 	vc4_crtc->regset.regs = txp_regs;
 	vc4_crtc->regset.nregs = ARRAY_SIZE(txp_regs);
 
-<<<<<<< HEAD
-	drm_connector_helper_add(&txp->connector.base,
-				 &vc4_txp_connector_helper_funcs);
-	ret = drm_writeback_connector_init(drm, &txp->connector,
-					   &vc4_txp_connector_funcs,
-					   &vc4_txp_encoder_helper_funcs,
-					   drm_fmts, ARRAY_SIZE(drm_fmts));
-=======
 	ret = vc4_crtc_init(drm, pdev, vc4_crtc, &txp_data->base,
 			    &vc4_txp_crtc_funcs, &vc4_txp_crtc_helper_funcs, true);
->>>>>>> drm/vc4: txp: Introduce structure to deal with revision differences
 	if (ret)
 		return ret;
 
