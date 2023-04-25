@@ -537,6 +537,12 @@ struct vc4_crtc_data {
 	int hvs_output;
 };
 
+struct vc4_txp_data {
+	struct vc4_crtc_data	base;
+};
+
+extern const struct vc4_txp_data vc4_txp_data;
+
 struct vc4_pv_data {
 	struct vc4_crtc_data	base;
 

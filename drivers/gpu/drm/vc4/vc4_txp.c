@@ -149,6 +149,7 @@
 
 struct vc4_txp {
 	struct vc4_crtc	base;
+	const struct vc4_txp_data *data;
 
 	struct platform_device *pdev;
 
@@ -477,16 +478,32 @@ static irqreturn_t vc4_txp_interrupt(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static const struct vc4_crtc_data vc4_txp_crtc_data = {
 	.debugfs_name = "txp_regs",
 	.hvs_available_channels = BIT(2),
 	.hvs_output = 2,
+=======
+const struct vc4_txp_data vc4_txp_data = {
+	.base = {
+		.name = "txp",
+		.debugfs_name = "txp_regs",
+		.hvs_available_channels = BIT(2),
+		.hvs_output = 2,
+	},
+>>>>>>> drm/vc4: txp: Introduce structure to deal with revision differences
 };
 
 static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 {
 	struct platform_device *pdev = to_platform_device(dev);
 	struct drm_device *drm = dev_get_drvdata(master);
+<<<<<<< HEAD
+=======
+	const struct vc4_txp_data *txp_data;
+	struct vc4_encoder *vc4_encoder;
+	struct drm_encoder *encoder;
+>>>>>>> drm/vc4: txp: Introduce structure to deal with revision differences
 	struct vc4_crtc *vc4_crtc;
 	struct vc4_txp *txp;
 	struct drm_crtc *crtc;
@@ -507,6 +524,11 @@ static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 	vc4_crtc->data = &vc4_txp_crtc_data;
 	vc4_crtc->feeds_txp = true;
 
+	txp_data = of_device_get_match_data(dev);
+	if (!txp_data)
+		return -ENODEV;
+
+	txp->data = txp_data;
 	txp->pdev = pdev;
 
 	txp->regs = vc4_ioremap_regs(pdev, 0);
@@ -516,12 +538,17 @@ static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 	vc4_crtc->regset.regs = txp_regs;
 	vc4_crtc->regset.nregs = ARRAY_SIZE(txp_regs);
 
+<<<<<<< HEAD
 	drm_connector_helper_add(&txp->connector.base,
 				 &vc4_txp_connector_helper_funcs);
 	ret = drm_writeback_connector_init(drm, &txp->connector,
 					   &vc4_txp_connector_funcs,
 					   &vc4_txp_encoder_helper_funcs,
 					   drm_fmts, ARRAY_SIZE(drm_fmts));
+=======
+	ret = vc4_crtc_init(drm, pdev, vc4_crtc, &txp_data->base,
+			    &vc4_txp_crtc_funcs, &vc4_txp_crtc_helper_funcs, true);
+>>>>>>> drm/vc4: txp: Introduce structure to deal with revision differences
 	if (ret)
 		return ret;
 
@@ -568,7 +595,7 @@ static int vc4_txp_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id vc4_txp_dt_match[] = {
-	{ .compatible = "brcm,bcm2835-txp" },
+	{ .compatible = "brcm,bcm2835-txp", .data = &vc4_txp_data },
 	{ /* sentinel */ },
 };
 
