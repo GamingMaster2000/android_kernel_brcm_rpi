@@ -512,6 +512,8 @@ const struct vc4_txp_data vc4_txp_data = {
 		.hvs_available_channels = BIT(2),
 		.hvs_output = 2,
 	},
+	.encoder_type = VC4_ENCODER_TYPE_TXP,
+	.has_byte_enable = true,
 };
 
 static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
@@ -560,8 +562,15 @@ static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 	if (ret)
 		return ret;
 
-	ret = vc4_crtc_init(drm, vc4_crtc,
-			    &vc4_txp_crtc_funcs, &vc4_txp_crtc_helper_funcs);
+	vc4_encoder = &txp->encoder;
+	txp->encoder.type = txp_data->encoder_type;
+
+	encoder = &vc4_encoder->base;
+	encoder->possible_crtcs = drm_crtc_mask(&vc4_crtc->base);
+
+	drm_encoder_helper_add(encoder, &vc4_txp_encoder_helper_funcs);
+
+	ret = drmm_encoder_init(drm, encoder, NULL, DRM_MODE_ENCODER_VIRTUAL, NULL);
 	if (ret)
 		return ret;
 
