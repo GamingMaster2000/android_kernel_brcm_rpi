@@ -506,6 +506,11 @@ enum vc4_encoder_type {
 	VC4_ENCODER_TYPE_DSI1,
 	VC4_ENCODER_TYPE_SMI,
 	VC4_ENCODER_TYPE_DPI,
+<<<<<<< HEAD
+=======
+	VC4_ENCODER_TYPE_TXP0,
+	VC4_ENCODER_TYPE_TXP1,
+>>>>>>> drm/vc4: txp: Add a new TXP encoder type
 };
 
 struct vc4_encoder {
