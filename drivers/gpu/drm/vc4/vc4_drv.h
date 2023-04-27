@@ -327,6 +327,8 @@ struct vc4_v3d {
 	struct debugfs_regset32 regset;
 };
 
+#define HVS_NUM_CHANNELS 3
+
 struct vc4_hvs {
 	struct vc4_dev *vc4;
 	struct platform_device *pdev;
@@ -334,6 +336,10 @@ struct vc4_hvs {
 	u32 __iomem *dlist;
 
 	struct clk *core_clk;
+
+	struct {
+		unsigned int enabled: 1;
+	} eof_irq[HVS_NUM_CHANNELS];
 
 	unsigned long max_core_rate;
 
@@ -366,6 +372,24 @@ struct vc4_hvs {
 	 */
 	bool vc5_hdmi_enable_4096by2160;
 };
+
+struct vc4_hvs_state {
+	struct drm_private_state base;
+	unsigned long core_clock_rate;
+
+	struct {
+		unsigned in_use: 1;
+		unsigned long fifo_load;
+		struct drm_crtc_commit *pending_commit;
+	} fifo_state[HVS_NUM_CHANNELS];
+};
+
+#define to_vc4_hvs_state(_state)				\
+	container_of_const(_state, struct vc4_hvs_state, base)
+
+struct vc4_hvs_state *vc4_hvs_get_global_state(struct drm_atomic_state *state);
+struct vc4_hvs_state *vc4_hvs_get_old_global_state(const struct drm_atomic_state *state);
+struct vc4_hvs_state *vc4_hvs_get_new_global_state(const struct drm_atomic_state *state);
 
 struct vc4_plane {
 	struct drm_plane base;
