@@ -64,6 +64,57 @@
 };
 
 / {
+	aliases: aliases {
+		blconfig = &blconfig;
+		blpubkey = &blpubkey;
+		bluetooth = &bluetooth;
+		console = &uart10;
+		drm-dsi1 = &dsi0;
+		drm-dsi2 = &dsi1;
+		ethernet0 = &rp1_eth;
+		fb = &fb;
+		gpio0 = &gpio;
+		gpio1 = &gio;
+		gpio2 = &gio_aon;
+		gpio3 = &pinctrl;
+		gpio4 = &pinctrl_aon;
+		gpiochip0 = &gpio;
+		gpiochip10 = &gio;
+		i2c = &i2c_arm;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c10 = &i2c_rp1boot;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+		mailbox = &mailbox;
+		mmc0 = &sdio1;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial10 = &uart10;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+		spi0 = &spi0;
+		spi1 = &spi1;
+		spi10 = &spi10;
+		spi2 = &spi2;
+		spi3 = &spi3;
+		spi4 = &spi4;
+		spi5 = &spi5;
+		uart0 = &uart0;
+		uart1 = &uart1;
+		uart10 = &uart10;
+		uart2 = &uart2;
+		uart3 = &uart3;
+		uart4 = &uart4;
+		usb0 = &rp1_usb0;
+		usb1 = &rp1_usb1;
+		wifi0 = &wifi;
+	};
+
 	__overrides__ {
 		arm_freq;
 		axiperf = <&axiperf>,"status";
