@@ -1442,6 +1442,8 @@ static int vc4_hvs_dev_remove(struct platform_device *pdev)
 
 static const struct of_device_id vc4_hvs_dt_match[] = {
 	{ .compatible = "brcm,bcm2711-hvs" },
+	{ .compatible = "brcm,bcm2712-hvs" },
+	{ .compatible = "brcm,bcm2712d0-hvs" },
 	{ .compatible = "brcm,bcm2835-hvs" },
 	{}
 };
