@@ -117,7 +117,7 @@
 
 	__overrides__ {
 		arm_freq;
-		axiperf = <&axiperf>,"status";
+		// axiperf = <&axiperf>,"status";
 	};
 };
 
