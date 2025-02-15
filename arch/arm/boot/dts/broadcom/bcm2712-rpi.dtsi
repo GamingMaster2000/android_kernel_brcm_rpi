@@ -66,7 +66,7 @@
 / {
 	aliases: aliases {
 		blconfig = &blconfig;
-		blpubkey = &blpubkey;
+		// blpubkey = &blpubkey;
 		bluetooth = &bluetooth;
 		console = &uart10;
 		drm-dsi1 = &dsi0;
