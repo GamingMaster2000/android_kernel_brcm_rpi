@@ -248,26 +248,7 @@ static void bgpio_set_direct(struct gpio_chip *gc, unsigned int gpio, int val)
 
 	gc->write_reg(gc->reg_dat, gc->bgpio_data);
 
-	raw_spin_unlock_irqrestore(&gc->bgpio_lock, flags);
-}
-
-static void bgpio_set_direct(struct gpio_chip *gc, unsigned int gpio, int val)
-{
-	unsigned long mask = bgpio_line2mask(gc, gpio);
-	unsigned long flags;
-
-	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
-
-	gc->bgpio_data = gc->read_reg(gc->reg_dat);
-
-	if (val)
-		gc->bgpio_data |= mask;
-	else
-		gc->bgpio_data &= ~mask;
-
-	gc->write_reg(gc->reg_dat, gc->bgpio_data);
-
-	raw_spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+	raw_spin_unlock_irqrestore((raw_spinlock_t *)&gc->bgpio_lock, flags);
 }
 
 static void bgpio_set_with_clear(struct gpio_chip *gc, unsigned int gpio,
@@ -380,7 +361,7 @@ static void bgpio_set_multiple_direct(struct gpio_chip *gc,
 
 	gc->write_reg(gc->reg_dat, gc->bgpio_data);
 
-	raw_spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+	raw_spin_unlock_irqrestore((raw_spinlock_t *)&gc->bgpio_lock, flags);
 }
 
 static int bgpio_simple_dir_in(struct gpio_chip *gc, unsigned int gpio)
@@ -438,30 +419,7 @@ static int bgpio_dir_in_direct(struct gpio_chip *gc, unsigned int gpio)
 	if (gc->reg_dir_out)
 		gc->write_reg(gc->reg_dir_out, gc->bgpio_dir);
 
-	raw_spin_unlock_irqrestore(&gc->bgpio_lock, flags);
-
-	return 0;
-}
-
-static int bgpio_dir_in_direct(struct gpio_chip *gc, unsigned int gpio)
-{
-	unsigned long flags;
-
-	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
-
-	if (gc->reg_dir_in)
-		gc->bgpio_dir = ~gc->read_reg(gc->reg_dir_in);
-	if (gc->reg_dir_out)
-		gc->bgpio_dir = gc->read_reg(gc->reg_dir_out);
-
-	gc->bgpio_dir &= ~bgpio_line2mask(gc, gpio);
-
-	if (gc->reg_dir_in)
-		gc->write_reg(gc->reg_dir_in, ~gc->bgpio_dir);
-	if (gc->reg_dir_out)
-		gc->write_reg(gc->reg_dir_out, gc->bgpio_dir);
-
-	raw_spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+	raw_spin_unlock_irqrestore((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	return 0;
 }
@@ -523,29 +481,7 @@ static void bgpio_dir_out_direct(struct gpio_chip *gc, unsigned int gpio,
 	if (gc->reg_dir_out)
 		gc->write_reg(gc->reg_dir_out, gc->bgpio_dir);
 
-	raw_spin_unlock_irqrestore(&gc->bgpio_lock, flags);
-}
-
-static void bgpio_dir_out_direct(struct gpio_chip *gc, unsigned int gpio,
-				 int val)
-{
-	unsigned long flags;
-
-	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
-
-	if (gc->reg_dir_in)
-		gc->bgpio_dir = ~gc->read_reg(gc->reg_dir_in);
-	if (gc->reg_dir_out)
-		gc->bgpio_dir = gc->read_reg(gc->reg_dir_out);
-
-	gc->bgpio_dir |= bgpio_line2mask(gc, gpio);
-
-	if (gc->reg_dir_in)
-		gc->write_reg(gc->reg_dir_in, ~gc->bgpio_dir);
-	if (gc->reg_dir_out)
-		gc->write_reg(gc->reg_dir_out, gc->bgpio_dir);
-
-	raw_spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+	raw_spin_unlock_irqrestore((raw_spinlock_t *)&gc->bgpio_lock, flags);
 }
 
 static int bgpio_dir_out_dir_first(struct gpio_chip *gc, unsigned int gpio,
