@@ -237,7 +237,7 @@ static void bgpio_set_direct(struct gpio_chip *gc, unsigned int gpio, int val)
 	unsigned long mask = bgpio_line2mask(gc, gpio);
 	unsigned long flags;
 
-	raw_spin_lock_irqsave(&gc->bgpio_lock, flags);
+	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	gc->bgpio_data = gc->read_reg(gc->reg_dat);
 
@@ -256,7 +256,7 @@ static void bgpio_set_direct(struct gpio_chip *gc, unsigned int gpio, int val)
 	unsigned long mask = bgpio_line2mask(gc, gpio);
 	unsigned long flags;
 
-	raw_spin_lock_irqsave(&gc->bgpio_lock, flags);
+	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	gc->bgpio_data = gc->read_reg(gc->reg_dat);
 
@@ -369,7 +369,7 @@ static void bgpio_set_multiple_direct(struct gpio_chip *gc,
 	unsigned long flags;
 	unsigned long set_mask, clear_mask;
 
-	raw_spin_lock_irqsave(&gc->bgpio_lock, flags);
+	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	bgpio_multiple_get_masks(gc, mask, bits, &set_mask, &clear_mask);
 
@@ -424,7 +424,7 @@ static int bgpio_dir_in_direct(struct gpio_chip *gc, unsigned int gpio)
 {
 	unsigned long flags;
 
-	raw_spin_lock_irqsave(&gc->bgpio_lock, flags);
+	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	if (gc->reg_dir_in)
 		gc->bgpio_dir = ~gc->read_reg(gc->reg_dir_in);
@@ -447,7 +447,7 @@ static int bgpio_dir_in_direct(struct gpio_chip *gc, unsigned int gpio)
 {
 	unsigned long flags;
 
-	raw_spin_lock_irqsave(&gc->bgpio_lock, flags);
+	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	if (gc->reg_dir_in)
 		gc->bgpio_dir = ~gc->read_reg(gc->reg_dir_in);
@@ -509,7 +509,7 @@ static void bgpio_dir_out_direct(struct gpio_chip *gc, unsigned int gpio,
 {
 	unsigned long flags;
 
-	raw_spin_lock_irqsave(&gc->bgpio_lock, flags);
+	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	if (gc->reg_dir_in)
 		gc->bgpio_dir = ~gc->read_reg(gc->reg_dir_in);
@@ -531,7 +531,7 @@ static void bgpio_dir_out_direct(struct gpio_chip *gc, unsigned int gpio,
 {
 	unsigned long flags;
 
-	raw_spin_lock_irqsave(&gc->bgpio_lock, flags);
+	raw_spin_lock_irqsave((raw_spinlock_t *)&gc->bgpio_lock, flags);
 
 	if (gc->reg_dir_in)
 		gc->bgpio_dir = ~gc->read_reg(gc->reg_dir_in);
