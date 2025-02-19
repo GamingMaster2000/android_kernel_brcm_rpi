@@ -65,6 +65,7 @@
 #define  PCIE_RC_PL_PHY_CTL_15_PM_CLK_PERIOD_MASK	0xff
 
 #define PCIE_MISC_MISC_CTRL				0x4008
+#define  PCIE_MISC_MISC_CTRL_RCB_MPS_MODE_MASK		0x400
 #define  PCIE_MISC_MISC_CTRL_SCB_ACCESS_EN_MASK		0x1000
 #define  PCIE_MISC_MISC_CTRL_CFG_READ_UR_MODE_MASK	0x2000
 #define  PCIE_MISC_MISC_CTRL_MAX_BURST_SIZE_MASK	0x300000
@@ -290,6 +291,8 @@ enum {
 
 enum pcie_type {
 	GENERIC,
+	BCM7425,
+	BCM7435,
 	BCM4908,
 	BCM7278,
 	BCM2711,
@@ -371,6 +374,7 @@ struct brcm_pcie {
 	struct device_node	*np;
 	bool			ssc;
 	bool			l1ss;
+	bool			rcb_mps_mode;
 	int			gen;
 	u64			msi_target_addr;
 	struct brcm_msi		*msi;
@@ -388,6 +392,7 @@ struct brcm_pcie {
 	bool			(*rc_mode)(struct brcm_pcie *pcie);
 	struct subdev_regulators *sr;
 	bool			ep_wakeup_capable;
+	u32			tperst_clk_ms;
 };
 
 static inline bool is_bmips(const struct brcm_pcie *pcie)
