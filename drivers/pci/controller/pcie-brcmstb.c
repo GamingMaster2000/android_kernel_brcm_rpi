@@ -1651,6 +1651,8 @@ static int brcm_pcie_remove(struct platform_device *pdev)
 	pci_stop_root_bus(bridge->bus);
 	pci_remove_root_bus(bridge->bus);
 	__brcm_pcie_remove(pcie);
+
+	return 0;
 }
 
 struct pcie_cfg_data {
