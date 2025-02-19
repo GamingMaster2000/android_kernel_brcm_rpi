@@ -429,45 +429,6 @@ static int brcm_pcie_mdio_write(void __iomem *base, u8 port,
 	return MDIO_WT_DONE(data) ? 0 : -EIO;
 }
 
-/*
- * Configures device for Spread Spectrum Clocking (SSC) mode; a negative
- * return value indicates error.
- */
-static int brcm_pcie_set_ssc(struct brcm_pcie *pcie)
-{
-	int pll, ssc;
-	int ret;
-	u32 tmp;
-
-	ret = brcm_pcie_mdio_write(pcie->base, MDIO_PORT0, SET_ADDR_OFFSET,
-				   SSC_REGS_ADDR);
-	if (ret < 0)
-		return ret;
-
-	ret = brcm_pcie_mdio_read(pcie->base, MDIO_PORT0,
-				  SSC_CNTL_OFFSET, &tmp);
-	if (ret < 0)
-		return ret;
-
-	u32p_replace_bits(&tmp, 1, SSC_CNTL_OVRD_EN_MASK);
-	u32p_replace_bits(&tmp, 1, SSC_CNTL_OVRD_VAL_MASK);
-	ret = brcm_pcie_mdio_write(pcie->base, MDIO_PORT0,
-				   SSC_CNTL_OFFSET, tmp);
-	if (ret < 0)
-		return ret;
-
-	usleep_range(1000, 2000);
-	ret = brcm_pcie_mdio_read(pcie->base, MDIO_PORT0,
-				  SSC_STATUS_OFFSET, &tmp);
-	if (ret < 0)
-		return ret;
-
-	ssc = FIELD_GET(SSC_STATUS_SSC_MASK, tmp);
-	pll = FIELD_GET(SSC_STATUS_PLL_LOCK_MASK, tmp);
-
-	return ssc && pll ? 0 : -EIO;
-}
-
 static void brcm_pcie_munge_pll(struct brcm_pcie *pcie)
 {
 	//print "MDIO block 0x1600 written per Dannys instruction"
