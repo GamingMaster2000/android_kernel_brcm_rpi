@@ -507,11 +507,8 @@ enum vc4_encoder_type {
 	VC4_ENCODER_TYPE_DSI1,
 	VC4_ENCODER_TYPE_SMI,
 	VC4_ENCODER_TYPE_DPI,
-<<<<<<< HEAD
-=======
 	VC4_ENCODER_TYPE_TXP0,
 	VC4_ENCODER_TYPE_TXP1,
->>>>>>> drm/vc4: txp: Add a new TXP encoder type
 };
 
 struct vc4_encoder {
@@ -551,13 +548,10 @@ struct vc4_txp_data {
 	unsigned int supports_40bit_addresses:1;
 };
 
-<<<<<<< HEAD
 extern const struct vc4_txp_data vc4_txp_data;
-=======
 extern const struct vc4_txp_data bcm2712_mop_data;
 extern const struct vc4_txp_data bcm2712_moplet_data;
 extern const struct vc4_txp_data bcm2835_txp_data;
->>>>>>> drm/vc4: tests: Add BCM2712 mock driver
 
 struct vc4_pv_data {
 	struct vc4_crtc_data	base;
