@@ -102,6 +102,7 @@ static bool vc4_crtc_get_scanout_position(struct drm_crtc *crtc,
 	struct vc4_hvs *hvs = vc4->hvs;
 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
 	struct vc4_crtc_state *vc4_crtc_state = to_vc4_crtc_state(crtc->state);
+    unsigned int channel = vc4_crtc_state->assigned_channel;
 	unsigned int cob_size;
 	u32 val;
 	int fifo_lines;
@@ -950,7 +951,7 @@ static int vc4_async_set_fence_cb(struct drm_device *dev,
 	struct dma_fence *fence;
 
 	if (vc4->gen == VC4_GEN_4) {
-		struct vc4_bo *bo = to_vc4_bo(&dma_bo->base);
+		struct vc4_bo *bo = to_vc4_bo(&cma_bo->base);
 
 		return vc4_queue_seqno_cb(dev, &flip_state->cb.seqno, bo->seqno,
 					  vc4_async_page_flip_seqno_complete);
