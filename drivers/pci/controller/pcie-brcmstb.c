@@ -762,7 +762,7 @@ static int brcm_msi_alloc(struct brcm_msi *msi)
 	int hwirq;
 
 	mutex_lock(&msi->lock);
-	hwirq = bitmap_find_free_region(&msi->used, msi->nr, 0);
+	hwirq = bitmap_find_free_region(&msi->used[0], msi->nr, 0);
 	mutex_unlock(&msi->lock);
 
 	return hwirq;
@@ -771,7 +771,7 @@ static int brcm_msi_alloc(struct brcm_msi *msi)
 static void brcm_msi_free(struct brcm_msi *msi, unsigned long hwirq)
 {
 	mutex_lock(&msi->lock);
-	bitmap_release_region(&msi->used, hwirq, 0);
+	bitmap_release_region(&msi->used[0], hwirq, 0);
 	mutex_unlock(&msi->lock);
 }
 
@@ -1147,21 +1147,20 @@ static int brcm_pcie_get_rc_bar_n(struct brcm_pcie *pcie,
 
 static int brcm_pcie_setup(struct brcm_pcie *pcie)
 {
-	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
 	u64 rc_bar2_offset, rc_bar2_size;
 	void __iomem *base = pcie->base;
-	struct device *dev = pcie->dev;
+	struct pci_host_bridge *bridge;
 	struct resource_entry *entry;
-	bool ssc_good = false;
-	struct resource *res;
-	int num_out_wins = 0;
-	u16 nlw, cls, lnksta;
-	int ret, memc, count, i;
 	u32 tmp, burst, aspm_support;
+	int num_out_wins = 0;
+	int ret, memc, count, i;
 
 	/* Reset the bridge */
 	pcie->bridge_sw_init_set(pcie, 1);
-	pcie->perst_set(pcie, 1);
+
+	/* Ensure that PERST# is asserted; some bootloaders may deassert it. */
+	if (pcie->type == BCM2711)
+		pcie->perst_set(pcie, 1);
 
 	usleep_range(100, 200);
 
@@ -1169,7 +1168,10 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
 	pcie->bridge_sw_init_set(pcie, 0);
 
 	tmp = readl(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG);
-	tmp &= ~PCIE_MISC_HARD_PCIE_HARD_DEBUG_SERDES_IDDQ_MASK;
+	if (is_bmips(pcie))
+		tmp &= ~PCIE_BMIPS_MISC_HARD_PCIE_HARD_DEBUG_SERDES_IDDQ_MASK;
+	else
+		tmp &= ~PCIE_MISC_HARD_PCIE_HARD_DEBUG_SERDES_IDDQ_MASK;
 	writel(tmp, base + PCIE_MISC_HARD_PCIE_HARD_DEBUG);
 	/* Wait for SerDes to be stable */
 	usleep_range(100, 200);
@@ -1201,11 +1203,14 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
 	else
 		burst = 0x2; /* 512 bytes */
 
-	/* Set SCB_MAX_BURST_SIZE, CFG_READ_UR_MODE, SCB_ACCESS_EN */
+	/* Set SCB_MAX_BURST_SIZE, CFG_READ_UR_MODE, SCB_ACCESS_EN, RCB_MPS_MODE */
 	tmp = readl(base + PCIE_MISC_MISC_CTRL);
 	u32p_replace_bits(&tmp, 1, PCIE_MISC_MISC_CTRL_SCB_ACCESS_EN_MASK);
 	u32p_replace_bits(&tmp, 1, PCIE_MISC_MISC_CTRL_CFG_READ_UR_MODE_MASK);
 	u32p_replace_bits(&tmp, burst, PCIE_MISC_MISC_CTRL_MAX_BURST_SIZE_MASK);
+	if (pcie->rcb_mps_mode)
+		u32p_replace_bits(&tmp, 1, PCIE_MISC_MISC_CTRL_RCB_MPS_MODE_MASK);
+	dev_info(pcie->dev, "setting SCB_ACCESS_EN, READ_UR_MODE, MAX_BURST_SIZE\n");
 	writel(tmp, base + PCIE_MISC_MISC_CTRL);
 
 	brcm_pcie_set_tc_qos(pcie);
@@ -1290,11 +1295,14 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
 	tmp &= ~PCIE_MISC_RC_BAR3_CONFIG_LO_SIZE_MASK;
 	writel(tmp, base + PCIE_MISC_RC_BAR3_CONFIG_LO);
 
-	if (pcie->gen)
-		brcm_pcie_set_gen(pcie, pcie->gen);
-
-	/* Unassert the fundamental reset */
-	pcie->perst_set(pcie, 0);
+	/* Don't advertise L0s capability if 'aspm-no-l0s' */
+	aspm_support = PCIE_LINK_STATE_L1;
+	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
+		aspm_support |= PCIE_LINK_STATE_L0S;
+	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
+	u32p_replace_bits(&tmp, aspm_support,
+		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
+	writel(tmp, base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
 
 	/* program additional inbound windows (RC_BAR4..RC_BAR10) */
 	count = (pcie->type == BCM2712) ? 7 : 0;
@@ -1329,24 +1337,17 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
 	}
 
 	/*
-	 * Give the RC/EP time to wake up, before trying to configure RC.
-	 * Intermittently check status for link-up, up to a total of 100ms.
+	 * For config space accesses on the RC, show the right class for
+	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
 	 */
-	for (i = 0; i < 100 && !brcm_pcie_link_up(pcie); i += 5)
-		msleep(5);
+	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
+	u32p_replace_bits(&tmp, 0x060400,
+			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
+	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
 
-	if (!brcm_pcie_link_up(pcie)) {
-		dev_err(dev, "link down\n");
-		return -ENODEV;
-	}
-
-	if (!brcm_pcie_rc_mode(pcie)) {
-		dev_err(dev, "PCIe misconfigured; is in EP mode\n");
-		return -EINVAL;
-	}
-
+	bridge = pci_host_bridge_from_priv(pcie);
 	resource_list_for_each_entry(entry, &bridge->windows) {
-		res = entry->res;
+		struct resource *res = entry->res;
 
 		if (resource_type(res) != IORESOURCE_MEM)
 			continue;
@@ -1356,6 +1357,19 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
 			return -EINVAL;
 		}
 
+		if (is_bmips(pcie)) {
+			u64 start = res->start;
+			unsigned int j, nwins = resource_size(res) / SZ_128M;
+
+			/* bmips PCIe outbound windows have a 128MB max size */
+			if (nwins > BRCM_NUM_PCIE_OUT_WINS)
+				nwins = BRCM_NUM_PCIE_OUT_WINS;
+			for (j = 0; j < nwins; j++, start += SZ_128M)
+				brcm_pcie_set_outbound_win(pcie, j, start,
+							   start - entry->offset,
+							   SZ_128M);
+			break;
+		}
 		brcm_pcie_set_outbound_win(pcie, num_out_wins, res->start,
 					   res->start - entry->offset,
 					   resource_size(res));
@@ -1378,9 +1392,28 @@ static int brcm_pcie_start_link(struct brcm_pcie *pcie)
 	u16 nlw, cls, lnksta;
 	bool ssc_good = false;
 	int ret, i;
+	u32 tmp;
 
 	/* Unassert the fundamental reset */
-	pcie->perst_set(pcie, 0);
+	if (pcie->tperst_clk_ms) {
+		/*
+		 * Increase Tperst_clk time by forcing PERST# output low while
+		 * the internal reset is released, so the PLL generates stable
+		 * refclk output further in advance of PERST# deassertion.
+		 */
+		tmp = readl(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG);
+		u32p_replace_bits(&tmp, 1, PCIE_MISC_HARD_PCIE_HARD_DEBUG_PERST_ASSERT_MASK);
+		writel(tmp, base + PCIE_MISC_HARD_PCIE_HARD_DEBUG);
+
+		pcie->perst_set(pcie, 0);
+		msleep(pcie->tperst_clk_ms);
+
+		tmp = readl(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG);
+		u32p_replace_bits(&tmp, 0, PCIE_MISC_HARD_PCIE_HARD_DEBUG_PERST_ASSERT_MASK);
+		writel(tmp, base + PCIE_MISC_HARD_PCIE_HARD_DEBUG);
+	} else {
+		pcie->perst_set(pcie, 0);
+	}
 
 	/*
 	 * Wait for 100ms after PERST# deassertion; see PCIe CEM specification
@@ -1389,13 +1422,20 @@ static int brcm_pcie_start_link(struct brcm_pcie *pcie)
 	msleep(100);
 
 	/*
-	 * For config space accesses on the RC, show the right class for
-	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
+	 * Give the RC/EP even more time to wake up, before trying to
+	 * configure RC.  Intermittently check status for link-up, up to a
+	 * total of 100ms.
 	 */
-	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
-	u32p_replace_bits(&tmp, 0x060400,
-			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
-	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
+	for (i = 0; i < 100 && !brcm_pcie_link_up(pcie); i += 5)
+		msleep(5);
+
+	if (!brcm_pcie_link_up(pcie)) {
+		dev_err(dev, "link down\n");
+		return -ENODEV;
+	}
+
+	if (pcie->gen)
+		brcm_pcie_set_gen(pcie, pcie->gen);
 
 	if (pcie->ssc) {
 		ret = brcm_pcie_set_ssc(pcie);
