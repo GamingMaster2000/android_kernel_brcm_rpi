@@ -100,27 +100,15 @@ static int bcm2835_pm_probe(struct platform_device *pdev)
 
 	pm->dev = dev;
 
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	pm->base = devm_ioremap_resource(dev, res);
-	if (IS_ERR(pm->base))
-		return PTR_ERR(pm->base);
+	ret = bcm2835_pm_get_pdata(pdev, pm);
+	if (ret)
+		return ret;
 
 	ret = devm_mfd_add_devices(dev, -1,
 				   bcm2835_pm_devs, ARRAY_SIZE(bcm2835_pm_devs),
 				   NULL, 0, NULL);
 	if (ret)
 		return ret;
-
-	/* Map the RPiVid ASB regs if present. */
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
-	if (res) {
-		pm->rpivid_asb = devm_ioremap_resource(dev, res);
-		if (IS_ERR(pm->rpivid_asb)) {
-			dev_err(dev, "Failed to map RPiVid ASB: %ld\n",
-				PTR_ERR(pm->rpivid_asb));
-			return PTR_ERR(pm->rpivid_asb);
-		}
-	}
 
 	/* We'll use the presence of the AXI ASB regs in the
 	 * bcm2835-pm binding as the key for whether we can reference
