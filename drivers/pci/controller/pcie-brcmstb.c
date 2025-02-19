@@ -321,6 +321,7 @@ static const struct pcie_cfg_data generic_cfg = {
 	.type		= GENERIC,
 	.perst_set	= brcm_pcie_perst_set_generic,
 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
+	.rc_mode	= brcm_pcie_rc_mode_generic,
 };
 
 static const struct pcie_cfg_data bcm4908_cfg = {
@@ -328,6 +329,7 @@ static const struct pcie_cfg_data bcm4908_cfg = {
 	.type		= BCM4908,
 	.perst_set	= brcm_pcie_perst_set_4908,
 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
+	.rc_mode	= brcm_pcie_rc_mode_generic,
 };
 
 static const int pcie_offset_bcm7278[] = {
@@ -343,6 +345,7 @@ static const struct pcie_cfg_data bcm7278_cfg = {
 	.type		= BCM7278,
 	.perst_set	= brcm_pcie_perst_set_7278,
 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_7278,
+	.rc_mode	= brcm_pcie_rc_mode_generic,
 };
 
 static const struct pcie_cfg_data bcm2711_cfg = {
@@ -350,6 +353,7 @@ static const struct pcie_cfg_data bcm2711_cfg = {
 	.type		= BCM2711,
 	.perst_set	= brcm_pcie_perst_set_generic,
 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
+	.rc_mode	= brcm_pcie_rc_mode_generic,
 };
 
 struct subdev_regulators {
@@ -1712,13 +1716,7 @@ static const int pcie_offsets_bmips_7425[] = {
 	[INTR2_CPU]      = 0x4300,
 };
 
-static const struct pcie_cfg_data generic_cfg = {
-	.offsets	= pcie_offsets,
-	.type		= GENERIC,
-	.perst_set	= brcm_pcie_perst_set_generic,
-	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
-	.rc_mode	= brcm_pcie_rc_mode_generic,
-};
+
 
 static const struct pcie_cfg_data bcm7425_cfg = {
 	.offsets	= pcie_offsets_bmips_7425,
@@ -1733,30 +1731,6 @@ static const struct pcie_cfg_data bcm7435_cfg = {
 	.type		= BCM7435,
 	.perst_set	= brcm_pcie_perst_set_generic,
 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
-};
-
-static const struct pcie_cfg_data bcm4908_cfg = {
-	.offsets	= pcie_offsets,
-	.type		= BCM4908,
-	.perst_set	= brcm_pcie_perst_set_4908,
-	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
-	.rc_mode	= brcm_pcie_rc_mode_generic,
-};
-
-static const struct pcie_cfg_data bcm7278_cfg = {
-	.offsets	= pcie_offset_bcm7278,
-	.type		= BCM7278,
-	.perst_set	= brcm_pcie_perst_set_7278,
-	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_7278,
-	.rc_mode	= brcm_pcie_rc_mode_generic,
-};
-
-static const struct pcie_cfg_data bcm2711_cfg = {
-	.offsets	= pcie_offsets,
-	.type		= BCM2711,
-	.perst_set	= brcm_pcie_perst_set_generic,
-	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
-	.rc_mode	= brcm_pcie_rc_mode_generic,
 };
 
 static const int pcie_offsets_bcm2712[] = {
