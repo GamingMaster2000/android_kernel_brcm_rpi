@@ -127,6 +127,8 @@
 
 #define ASB_AXI_BRDG_ID			0x20
 
+#define BCM2835_BRDG_ID			0x62726467
+
 #define ASB_READ(reg) readl(power->asb + (reg))
 #define ASB_WRITE(reg, val) writel(PM_PASSWORD | (val), power->asb + (reg))
 
@@ -143,8 +145,8 @@ struct bcm2835_power {
 	void __iomem		*base;
 	/* AXI Async bridge registers. */
 	void __iomem		*asb;
-
-	bool is_2711;
+	/* RPiVid bridge registers. */
+	void __iomem		*rpivid_asb;
 
 	struct genpd_onecell_data pd_xlate;
 	struct bcm2835_power_domain domains[BCM2835_POWER_DOMAIN_COUNT];
