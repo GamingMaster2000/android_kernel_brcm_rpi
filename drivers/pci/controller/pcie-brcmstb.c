@@ -390,6 +390,11 @@ struct brcm_pcie {
 	bool			ep_wakeup_capable;
 };
 
+static inline bool is_bmips(const struct brcm_pcie *pcie)
+{
+	return pcie->type == BCM7435 || pcie->type == BCM7425;
+}
+
 /*
  * This is to convert the size of the inbound "BAR" region to the
  * non-linear values of PCIE_X_MISC_RC_BAR[123]_CONFIG_LO.SIZE
