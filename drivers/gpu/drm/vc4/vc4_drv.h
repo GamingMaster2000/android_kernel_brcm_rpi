@@ -567,7 +567,7 @@ struct vc4_pv_data {
 	enum vc4_encoder_type encoder_types[4];
 };
 
-extern const struct vc4_pv_data bcm2835_pv0_data;
+/*extern const struct vc4_pv_data bcm2835_pv0_data;
 extern const struct vc4_pv_data bcm2835_pv1_data;
 extern const struct vc4_pv_data bcm2835_pv2_data;
 extern const struct vc4_pv_data bcm2711_pv0_data;
@@ -576,7 +576,7 @@ extern const struct vc4_pv_data bcm2711_pv2_data;
 extern const struct vc4_pv_data bcm2711_pv3_data;
 extern const struct vc4_pv_data bcm2711_pv4_data;
 extern const struct vc4_pv_data bcm2712_pv0_data;
-extern const struct vc4_pv_data bcm2712_pv1_data;
+extern const struct vc4_pv_data bcm2712_pv1_data;*/
 
 struct vc5_gamma_entry {
 	u32 x_c_terms;
