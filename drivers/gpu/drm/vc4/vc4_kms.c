@@ -12,6 +12,7 @@
  */
 
 #include <linux/clk.h>
+#include <linux/container_of.h>
 
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
