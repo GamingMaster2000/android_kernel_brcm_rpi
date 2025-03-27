@@ -397,7 +397,7 @@ struct vc4_hvs {
 };*/
 
 #define to_vc4_hvs_state(_state)				\
-	container_of_const(_state, struct vc4_hvs_state, base)
+	container_of(_state, struct vc4_hvs_state, base)
 
 struct vc4_hvs_state *vc4_hvs_get_global_state(struct drm_atomic_state *state);
 // struct vc4_hvs_state *vc4_hvs_get_old_global_state(const struct drm_atomic_state *state);
