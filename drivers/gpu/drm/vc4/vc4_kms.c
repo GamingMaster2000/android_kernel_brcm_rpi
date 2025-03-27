@@ -39,7 +39,7 @@ static struct vc4_ctm_state *to_vc4_ctm_state(struct drm_private_state *priv)
 	return container_of(priv, struct vc4_ctm_state, base);
 }
 
-struct vc4_hvs_state {
+/*struct vc4_hvs_state {
 	struct drm_private_state base;
 	unsigned long core_clock_rate;
 
@@ -49,7 +49,7 @@ struct vc4_hvs_state {
 		struct drm_crtc_commit *pending_commit;
 	} fifo_state[HVS_NUM_CHANNELS];
 };
-
+*/
 static struct vc4_hvs_state *to_vc4_hvs_state(struct drm_private_state *priv)
 {
 	return container_of(priv, struct vc4_hvs_state, base);

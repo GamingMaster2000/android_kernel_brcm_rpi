@@ -385,7 +385,7 @@ struct vc4_hvs {
 
 #define HVS_UBM_WORD_SIZE 256
 
-/*struct vc4_hvs_state {
+struct vc4_hvs_state {
 	struct drm_private_state base;
 	unsigned long core_clock_rate;
 
@@ -394,7 +394,7 @@ struct vc4_hvs {
 		unsigned long fifo_load;
 		struct drm_crtc_commit *pending_commit;
 	} fifo_state[HVS_NUM_CHANNELS];
-};*/
+};
 
 #define to_vc4_hvs_state(_state)				\
 	container_of(_state, struct vc4_hvs_state, base)
