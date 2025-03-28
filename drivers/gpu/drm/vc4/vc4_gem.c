@@ -1164,15 +1164,11 @@ vc4_submit_cl_ioctl(struct drm_device *dev, void *data,
 	struct dma_fence *in_fence;
 	int ret = 0;
 
-<<<<<<< HEAD
-	if (WARN_ON_ONCE(vc4->is_vc5))
-=======
 	trace_vc4_submit_cl_ioctl(dev, args->bin_cl_size,
 				  args->shader_rec_size,
 				  args->bo_handle_count);
 
 	if (WARN_ON_ONCE(vc4->gen == VC4_GEN_5))
->>>>>>> drm/vc4: Introduce generation number enum
 		return -ENODEV;
 
 	if (!vc4->v3d) {
