@@ -653,7 +653,7 @@ vc4_hdmi_connector_duplicate_state(struct drm_connector *connector)
 	if (!new_state)
 		return NULL;
 
-	new_state->pixel_rate = vc4_state->pixel_rate;
+	new_state->tmds_char_rate = vc4_state->tmds_char_rate;
 	new_state->output_bpc = vc4_state->output_bpc;
 	new_state->output_format = vc4_state->output_format;
 	new_state->requested_output_format = vc4_state->requested_output_format;
@@ -1690,7 +1690,7 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
 	struct vc4_hdmi_connector_state *vc4_conn_state =
 		conn_state_to_vc4_hdmi_conn_state(conn_state);
 	const struct drm_display_mode *mode = &vc4_hdmi->saved_adjusted_mode;
-	unsigned long pixel_rate = vc4_conn_state->pixel_rate;
+	unsigned long pixel_rate = vc4_conn_state->tmds_char_rate;
 	unsigned long bvb_rate, hsm_rate;
 	unsigned long flags;
 	int ret;
@@ -2060,7 +2060,7 @@ vc4_hdmi_encoder_compute_clock(const struct vc4_hdmi *vc4_hdmi,
 	if (vc4_hdmi_encoder_clock_valid(vc4_hdmi, mode, clock) != MODE_OK)
 		return -EINVAL;
 
-	vc4_state->pixel_rate = clock;
+	vc4_state->tmds_char_rate = clock;
 
 	return 0;
 }
@@ -2155,7 +2155,7 @@ vc4_hdmi_encoder_compute_config(const struct vc4_hdmi *vc4_hdmi,
 			mode->hdisplay, mode->vdisplay, drm_mode_vrefresh(mode),
 			vc4_state->output_bpc,
 			vc4_hdmi_output_fmt_str(vc4_state->output_format),
-			vc4_state->pixel_rate);
+			vc4_state->tmds_char_rate);
 
 		break;
 	}
