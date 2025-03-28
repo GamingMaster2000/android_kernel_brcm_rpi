@@ -3364,7 +3364,7 @@ err_delete_cec_adap:
 	return ret;
 }
 
-static int vc4_hdmi_cec_resume(struct vc4_hdmi *vc4_hdmi)
+/*static int vc4_hdmi_cec_resume(struct vc4_hdmi *vc4_hdmi)
 {
 	unsigned long flags;
 	u32 value;
@@ -3372,7 +3372,7 @@ static int vc4_hdmi_cec_resume(struct vc4_hdmi *vc4_hdmi)
 	spin_lock_irqsave(&vc4_hdmi->hw_lock, flags);
 	value = HDMI_READ(HDMI_CEC_CNTRL_1);
 	/* Set the logical address to Unregistered */
-	value |= VC4_HDMI_CEC_ADDR_MASK;
+	/*value |= VC4_HDMI_CEC_ADDR_MASK;
 	HDMI_WRITE(HDMI_CEC_CNTRL_1, value);
 	spin_unlock_irqrestore(&vc4_hdmi->hw_lock, flags);
 
@@ -3385,7 +3385,7 @@ static int vc4_hdmi_cec_resume(struct vc4_hdmi *vc4_hdmi)
 	}
 
 	return 0;
-}
+}*/
 #else
 static int vc4_hdmi_cec_init(struct vc4_hdmi *vc4_hdmi)
 {
