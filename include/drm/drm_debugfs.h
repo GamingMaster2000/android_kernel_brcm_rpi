@@ -35,7 +35,7 @@
 #include <linux/types.h>
 #include <linux/seq_file.h>
 
-#include <drm/drm_gpuva_mgr.h>
+// #include <drm/drm_gpuva_mgr.h>
 
 /**
  * DRM_DEBUGFS_GPUVA_INFO - &drm_info_list entry to dump a GPU VA space
