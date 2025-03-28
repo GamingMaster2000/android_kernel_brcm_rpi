@@ -1454,11 +1454,8 @@ int vc4_hvs_debugfs_init(struct drm_minor *minor)
 		debugfs_create_bool("hvs_load_tracker", S_IRUGO | S_IWUSR,
 				    minor->debugfs_root,
 				    &vc4->load_tracker_enabled);
-
-	if (vc4->is_vc5)
-		vc4_debugfs_add_file(minor, "hvs_gamma",
-				     vc5_hvs_debugfs_gamma, NULL);
-
+    }
+    
 	if (vc4->gen >= VC4_GEN_6)
 		drm_debugfs_add_file(drm, "hvs_dlists", vc6_hvs_debugfs_dlist, NULL);
 	else
