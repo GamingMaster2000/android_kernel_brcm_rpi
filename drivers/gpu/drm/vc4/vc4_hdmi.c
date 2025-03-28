@@ -2593,13 +2593,6 @@ static int vc4_hdmi_audio_prepare(struct device *dev, void *data,
 					     VC4_HDMI_AUDIO_PACKET_CEA_MASK);
 
 	/* Set the MAI threshold */
-<<<<<<< HEAD
-	HDMI_WRITE(HDMI_MAI_THR,
-		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICHIGH) |
-		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICLOW) |
-		   VC4_SET_FIELD(0x06, VC4_HD_MAI_THR_DREQHIGH) |
-		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_DREQLOW));
-=======
 	if (vc4->gen >= VC4_GEN_5)
 		HDMI_WRITE(HDMI_MAI_THR,
 			VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICHIGH) |
@@ -2612,7 +2605,6 @@ static int vc4_hdmi_audio_prepare(struct device *dev, void *data,
 			VC4_SET_FIELD(0x8, VC4_HD_MAI_THR_PANICLOW) |
 			VC4_SET_FIELD(0x6, VC4_HD_MAI_THR_DREQHIGH) |
 			VC4_SET_FIELD(0x8, VC4_HD_MAI_THR_DREQLOW));
->>>>>>> drm/vc4: Introduce generation number enum
 
 	HDMI_WRITE(HDMI_MAI_CONFIG,
 		   VC4_HDMI_MAI_CONFIG_BIT_REVERSE |
