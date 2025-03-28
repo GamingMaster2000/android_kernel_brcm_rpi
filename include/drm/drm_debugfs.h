@@ -86,14 +86,6 @@ void drm_debugfs_create_files(const struct drm_info_list *files,
 int drm_debugfs_remove_files(const struct drm_info_list *files,
 			     int count, struct drm_minor *minor);
 
-void drm_debugfs_add_file(struct drm_device *dev, const char *name,
-			  int (*show)(struct seq_file*, void*), void *data);
-
-void drm_debugfs_add_files(struct drm_device *dev,
-			   const struct drm_debugfs_info *files, int count);
-
-int drm_debugfs_gpuva_info(struct seq_file *m,
-			   struct drm_gpuva_manager *mgr);
 #else
 static inline void drm_debugfs_create_files(const struct drm_info_list *files,
 					    int count, struct dentry *root,
@@ -106,21 +98,7 @@ static inline int drm_debugfs_remove_files(const struct drm_info_list *files,
 	return 0;
 }
 
-static inline void drm_debugfs_add_file(struct drm_device *dev, const char *name,
-					int (*show)(struct seq_file*, void*),
-					void *data)
-{}
 
-static inline void drm_debugfs_add_files(struct drm_device *dev,
-					 const struct drm_debugfs_info *files,
-					 int count)
-{}
-
-static inline int drm_debugfs_gpuva_info(struct seq_file *m,
-					 struct drm_gpuva_manager *mgr)
-{
-	return 0;
-}
 #endif
 
 #endif /* _DRM_DEBUGFS_H_ */
