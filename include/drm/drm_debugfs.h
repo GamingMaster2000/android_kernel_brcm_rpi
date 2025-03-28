@@ -79,12 +79,41 @@ struct drm_info_node {
 	struct dentry *dent;
 };
 
+/**
+ * struct drm_debugfs_info - debugfs info list entry
+ *
+ * This structure represents a debugfs file to be created by the drm
+ * core.
+ */
+struct drm_debugfs_info {
+	/** @name: File name */
+	const char *name;
+
+	/**
+	 * @show:
+	 *
+	 * Show callback. &seq_file->private will be set to the &struct
+	 * drm_debugfs_entry corresponding to the instance of this info
+	 * on a given &struct drm_device.
+	 */
+	int (*show)(struct seq_file*, void*);
+
+	/** @driver_features: Required driver features for this entry. */
+	u32 driver_features;
+
+	/** @data: Driver-private data, should not be device-specific. */
+	void *data;
+};
+
 #if defined(CONFIG_DEBUG_FS)
 void drm_debugfs_create_files(const struct drm_info_list *files,
 			      int count, struct dentry *root,
 			      struct drm_minor *minor);
 int drm_debugfs_remove_files(const struct drm_info_list *files,
 			     int count, struct drm_minor *minor);
+
+void drm_debugfs_add_file(struct drm_device *dev, const char *name,
+			  int (*show)(struct seq_file*, void*), void *data);
 
 #else
 static inline void drm_debugfs_create_files(const struct drm_info_list *files,
@@ -98,6 +127,10 @@ static inline int drm_debugfs_remove_files(const struct drm_info_list *files,
 	return 0;
 }
 
+static inline void drm_debugfs_add_file(struct drm_device *dev, const char *name,
+					int (*show)(struct seq_file*, void*),
+					void *data)
+{}
 
 #endif
 
