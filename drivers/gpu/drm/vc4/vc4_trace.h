@@ -52,6 +52,31 @@ TRACE_EVENT(vc4_wait_for_seqno_end,
 		      __entry->dev, __entry->seqno)
 );
 
+TRACE_EVENT(vc4_submit_cl_ioctl,
+	    TP_PROTO(struct drm_device *dev, u32 bin_cl_size, u32 shader_rec_size, u32 bo_count),
+	    TP_ARGS(dev, bin_cl_size, shader_rec_size, bo_count),
+
+	    TP_STRUCT__entry(
+			     __field(u32, dev)
+			     __field(u32, bin_cl_size)
+			     __field(u32, shader_rec_size)
+			     __field(u32, bo_count)
+			     ),
+
+	    TP_fast_assign(
+			   __entry->dev = dev->primary->index;
+			   __entry->bin_cl_size = bin_cl_size;
+			   __entry->shader_rec_size = shader_rec_size;
+			   __entry->bo_count = bo_count;
+			   ),
+
+	    TP_printk("dev=%u, bin_cl_size=%u, shader_rec_size=%u, bo_count=%u",
+		      __entry->dev,
+		      __entry->bin_cl_size,
+		      __entry->shader_rec_size,
+		      __entry->bo_count)
+);
+
 #endif /* _VC4_TRACE_H_ */
 
 /* This part must be outside protection */
