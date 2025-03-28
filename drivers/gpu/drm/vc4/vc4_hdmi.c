@@ -3370,7 +3370,7 @@ err_delete_cec_adap:
 	u32 value;
 
 	spin_lock_irqsave(&vc4_hdmi->hw_lock, flags);
-	value = HDMI_READ(HDMI_CEC_CNTRL_1);
+	value = HDMI_READ(HDMI_CEC_CNTRL_1);*/
 	/* Set the logical address to Unregistered */
 	/*value |= VC4_HDMI_CEC_ADDR_MASK;
 	HDMI_WRITE(HDMI_CEC_CNTRL_1, value);
