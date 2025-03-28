@@ -3640,6 +3640,8 @@ static int __maybe_unused vc4_hdmi_runtime_suspend(struct device *dev)
 static int vc4_hdmi_runtime_resume(struct device *dev)
 {
 	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
+    unsigned long __maybe_unused flags;
+	u32 __maybe_unused value;
     unsigned long rate;
 	int ret;
 
@@ -3668,14 +3670,29 @@ static int vc4_hdmi_runtime_resume(struct device *dev)
 
 	if (vc4_hdmi->variant->reset)
 		vc4_hdmi->variant->reset(vc4_hdmi);
+    
+	#ifdef CONFIG_DRM_VC4_HDMI_CEC
+        spin_lock_irqsave(&vc4_hdmi->hw_lock, flags);
+        value = HDMI_READ(HDMI_CEC_CNTRL_1);
+        /* Set the logical address to Unregistered */
+        value |= VC4_HDMI_CEC_ADDR_MASK;
+        HDMI_WRITE(HDMI_CEC_CNTRL_1, value);
+        spin_unlock_irqrestore(&vc4_hdmi->hw_lock, flags);
 
-	ret = vc4_hdmi_cec_resume(vc4_hdmi);
-	if (ret) {
-		clk_disable_unprepare(vc4_hdmi->hsm_clock);
-		return ret;
-	}
+        vc4_hdmi_cec_update_clk_div(vc4_hdmi);
 
-	return 0;
+        if (!vc4_hdmi->variant->external_irq_controller) {
+            spin_lock_irqsave(&vc4_hdmi->hw_lock, flags);
+            HDMI_WRITE(HDMI_CEC_CPU_MASK_SET, 0xffffffff);
+            spin_unlock_irqrestore(&vc4_hdmi->hw_lock, flags);
+        }
+    #endif
+
+        return 0;
+
+    err_disable_clk:
+        clk_disable_unprepare(vc4_hdmi->hsm_clock);
+        return ret;
 }
 
 static void vc4_hdmi_put_ddc_device(void *ptr)
