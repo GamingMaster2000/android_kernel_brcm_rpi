@@ -34,6 +34,9 @@
 
 #include <linux/types.h>
 #include <linux/seq_file.h>
+
+#include <drm/drm_device.h>
+
 /**
  * struct drm_info_list - debugfs info list entry
  *
