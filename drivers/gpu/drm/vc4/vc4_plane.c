@@ -746,7 +746,7 @@ static unsigned int vc4_lbm_channel_size(struct drm_plane_state *state,
 	return lines;
 }
 
-static unsigned int __vc6_lbm_size(const struct drm_plane_state *state)
+static unsigned int __vc6_lbm_size(struct drm_plane_state *state)
 {
 	const struct drm_format_info *info = state->fb->format;
 
