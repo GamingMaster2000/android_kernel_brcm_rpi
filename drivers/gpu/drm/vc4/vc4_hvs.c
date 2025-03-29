@@ -167,7 +167,7 @@ void vc4_hvs_dump_state(struct vc4_hvs *hvs)
 	drm_dev_exit(idx);
 }
 
-static int vc4_hvs_debugfs_underrun(struct seq_file *m, void *data)
+/*static int vc4_hvs_debugfs_underrun(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = m->private;
 	struct drm_device *dev = node->minor->dev;
@@ -177,7 +177,7 @@ static int vc4_hvs_debugfs_underrun(struct seq_file *m, void *data)
 	drm_printf(&p, "%d\n", atomic_read(&vc4->underrun));
 
 	return 0;
-}
+}*/
 
 static int vc4_hvs_debugfs_dlist(struct seq_file *m, void *data)
 {
@@ -268,7 +268,7 @@ static int vc6_hvs_debugfs_dlist(struct seq_file *m, void *data)
 	return 0;
 }
 
-static int vc5_hvs_debugfs_gamma(struct seq_file *m, void *data)
+/*static int vc5_hvs_debugfs_gamma(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = m->private;
 	struct drm_device *dev = node->minor->dev;
@@ -328,9 +328,9 @@ static int vc5_hvs_debugfs_gamma(struct seq_file *m, void *data)
 				   VC4_GET_FIELD(x_c, SCALER5_DSPGAMMA_OFF_C),
 				   grad);
 		}
-
+*/
 		/* Alpha only valid on channel 2 */
-		if (chan != 2)
+		/*if (chan != 2)
 			continue;
 
 		drm_printf(&p, "  alpha:\n");
@@ -345,7 +345,7 @@ static int vc5_hvs_debugfs_gamma(struct seq_file *m, void *data)
 		}
 	}
 	return 0;
-}
+}*/
 
 /* The filter kernel is composed of dwords each containing 3 9-bit
  * signed integers packed next to each other.
