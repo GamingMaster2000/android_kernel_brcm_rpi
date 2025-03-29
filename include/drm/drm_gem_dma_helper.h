@@ -38,8 +38,8 @@ void drm_gem_dma_free(struct drm_gem_dma_object *dma_obj);
 void drm_gem_dma_print_info(const struct drm_gem_dma_object *dma_obj,
 			    struct drm_printer *p, unsigned int indent);
 struct sg_table *drm_gem_dma_get_sg_table(struct drm_gem_dma_object *dma_obj);
-int drm_gem_dma_vmap(struct drm_gem_dma_object *dma_obj,
-		     struct iosys_map *map);
+/*int drm_gem_dma_vmap(struct drm_gem_dma_object *dma_obj,
+		     struct iosys_map *map);*/
 int drm_gem_dma_mmap(struct drm_gem_dma_object *dma_obj, struct vm_area_struct *vma);
 
 extern const struct vm_operations_struct drm_gem_dma_vm_ops;
@@ -107,7 +107,7 @@ static inline struct sg_table *drm_gem_dma_object_get_sg_table(struct drm_gem_ob
  * Returns:
  * 0 on success or a negative error code on failure.
  */
-static inline int drm_gem_dma_object_vmap(struct drm_gem_object *obj,
+/*static inline int drm_gem_dma_object_vmap(struct drm_gem_object *obj,
 					  struct iosys_map *map)
 {
 	struct drm_gem_dma_object *dma_obj = to_drm_gem_dma_obj(obj);
