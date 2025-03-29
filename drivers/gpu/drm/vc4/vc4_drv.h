@@ -496,7 +496,7 @@ struct vc4_plane_state {
 static inline struct vc4_plane_state *
 to_vc4_plane_state(struct drm_plane_state *state)
 {
-	return container_of(state, struct vc4_plane_state, base);
+	return container_of_const(state, struct vc4_plane_state, base);
 }
 
 enum vc4_encoder_type {
