@@ -33,7 +33,7 @@
 #include "vc4_drv.h"
 #include "vc4_regs.h"
 
-#include <kunit/test.h>
+#include <kunit/test-bug.h>
 
 static const struct debugfs_reg32 vc4_hvs_regs[] = {
 	VC4_REG32(SCALER_DISPCTRL),
