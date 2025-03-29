@@ -666,7 +666,7 @@ static u32 __vc4_lbm_size(struct drm_plane_state *state)
 	return lbm;
 }
 
-static unsigned int vc4_lbm_words_per_component(const struct drm_plane_state *state,
+static unsigned int vc4_lbm_words_per_component(struct drm_plane_state *state,
 						unsigned int channel)
 {
 	const struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
