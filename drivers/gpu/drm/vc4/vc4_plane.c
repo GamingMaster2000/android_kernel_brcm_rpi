@@ -22,6 +22,7 @@
 #include <drm/drm_fourcc.h>
 #include <drm/drm_gem_atomic_helper.h>
 #include <drm/drm_plane_helper.h>
+#include <drm/drm_gem_dma_helper.h>
 
 #include "uapi/drm/vc4_drm.h"
 
@@ -883,7 +884,9 @@ static void vc4_plane_calc_load(struct drm_plane_state *state)
 
 static int vc4_plane_allocate_lbm(struct drm_plane_state *state)
 {
-	struct vc4_dev *vc4 = to_vc4_dev(state->plane->dev);
+	struct drm_device *drm = state->plane->dev;
+    struct vc4_dev *vc4 = to_vc4_dev(drm);
+    struct drm_plane *plane = state->plane;
 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
 	unsigned long irqflags;
 	u32 lbm_size;
@@ -2101,7 +2104,11 @@ static void vc4_plane_atomic_async_update(struct drm_plane *plane,
 	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
 										 plane);
 	struct vc4_plane_state *vc4_state, *new_vc4_state;
-
+    int idx;
+    
+    if (!drm_dev_enter(plane->dev, &idx))
+		return;
+    
 	swap(plane->state->fb, new_plane_state->fb);
 	plane->state->crtc_x = new_plane_state->crtc_x;
 	plane->state->crtc_y = new_plane_state->crtc_y;
