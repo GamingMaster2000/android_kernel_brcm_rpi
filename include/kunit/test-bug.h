@@ -14,6 +14,9 @@
 
 #if IS_BUILTIN(CONFIG_KUNIT)
 
+/* Static key if KUnit is running any tests. */
+DECLARE_STATIC_KEY_FALSE(kunit_running);
+
 extern __printf(3, 4) void __kunit_fail_current_test(const char *file, int line,
 						    const char *fmt, ...);
 
