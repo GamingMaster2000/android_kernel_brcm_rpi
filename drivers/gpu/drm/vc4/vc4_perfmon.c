@@ -19,15 +19,11 @@ void vc4_perfmon_get(struct vc4_perfmon *perfmon)
 {
 	struct vc4_dev *vc4 = perfmon->dev;
 
-<<<<<<< HEAD
-	if (WARN_ON_ONCE(vc4->is_vc5))
-=======
 	if (!perfmon)
 		return;
 
 	vc4 = perfmon->dev;
 	if (WARN_ON_ONCE(vc4->gen == VC4_GEN_5))
->>>>>>> drm/vc4: Introduce generation number enum
 		return;
 
 	if (perfmon)
