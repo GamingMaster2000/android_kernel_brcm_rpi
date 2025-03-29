@@ -683,7 +683,7 @@ static unsigned int vc4_lbm_words_per_component(struct drm_plane_state *state,
 	}
 }
 
-static unsigned int vc4_lbm_components(const struct drm_plane_state *state,
+static unsigned int vc4_lbm_components(struct drm_plane_state *state,
 				       unsigned int channel)
 {
 	const struct drm_format_info *info = state->fb->format;
@@ -701,7 +701,7 @@ static unsigned int vc4_lbm_components(const struct drm_plane_state *state,
 	return 3;
 }
 
-static unsigned int vc4_lbm_channel_size(const struct drm_plane_state *state,
+static unsigned int vc4_lbm_channel_size(struct drm_plane_state *state,
 					 unsigned int channel)
 {
 	const struct drm_format_info *info = state->fb->format;
@@ -773,7 +773,7 @@ u32 vc4_lbm_size(struct drm_plane_state *state)
 		return __vc4_lbm_size(state);
 }
 
-static size_t vc6_upm_size(const struct drm_plane_state *state,
+static size_t vc6_upm_size(struct drm_plane_state *state,
 			   unsigned int plane)
 {
 	const struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
