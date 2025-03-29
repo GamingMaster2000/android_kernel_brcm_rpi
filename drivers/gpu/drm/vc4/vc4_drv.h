@@ -8,6 +8,7 @@
 #include <linux/delay.h>
 #include <linux/refcount.h>
 #include <linux/uaccess.h>
+#include <linux/container_of.h>
 
 #include <drm/drm_atomic.h>
 #include <drm/drm_debugfs.h>
