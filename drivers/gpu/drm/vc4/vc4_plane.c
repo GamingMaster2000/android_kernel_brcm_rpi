@@ -23,6 +23,7 @@
 #include <drm/drm_gem_atomic_helper.h>
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_gem_dma_helper.h>
+#include <drm/drm_drv.h>
 
 #include "uapi/drm/vc4_drm.h"
 

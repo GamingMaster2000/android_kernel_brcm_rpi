@@ -113,7 +113,7 @@ static inline struct sg_table *drm_gem_dma_object_get_sg_table(struct drm_gem_ob
 	struct drm_gem_dma_object *dma_obj = to_drm_gem_dma_obj(obj);
 
 	return drm_gem_dma_vmap(dma_obj, map);
-}
+}*/
 
 /**
  * drm_gem_dma_object_mmap - GEM object function for drm_gem_dma_mmap()
