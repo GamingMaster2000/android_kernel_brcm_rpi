@@ -41,6 +41,21 @@ static inline struct kunit *kunit_get_current_test(void)
 	return current->kunit_test;
 }
 
+/**
+ * kunit_fail_current_test() - If a KUnit test is running, fail it.
+ *
+ * If a KUnit test is running in the current task, mark that test as failed.
+ *
+ * This macro will only work if KUnit is built-in (though the tests
+ * themselves can be modules). Otherwise, it compiles down to nothing.
+ */
+#define kunit_fail_current_test(fmt, ...) do {					\
+		if (static_branch_unlikely(&kunit_running)) {			\
+			__kunit_fail_current_test(__FILE__, __LINE__,		\
+						  fmt, ##__VA_ARGS__);		\
+		}								\
+	} while (0)
+
 #else
 
 static inline struct kunit *kunit_get_current_test(void) { return NULL; }
@@ -49,6 +64,10 @@ static inline __printf(3, 4) void __kunit_fail_current_test(const char *file, in
 							    const char *fmt, ...)
 {
 }
+
+/* We define this with an empty helper function so format string warnings work */
+#define kunit_fail_current_test(fmt, ...) \
+		__kunit_fail_current_test(__FILE__, __LINE__, fmt, ##__VA_ARGS__)
 
 #endif
 
