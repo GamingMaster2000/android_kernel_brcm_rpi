@@ -24,6 +24,9 @@
 #include <drm/drm_vblank.h>
 #include <drm/drm_writeback.h>
 
+#include <kunit/test.h>
+#include <drm/drm_gem_dma_helper.h>
+
 #include "vc4_drv.h"
 #include "vc4_regs.h"
 
